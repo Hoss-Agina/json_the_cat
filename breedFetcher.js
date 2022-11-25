@@ -1,23 +1,18 @@
 const request = require('request');
-let breedName = process.argv[2];
 
-request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}fdfdf`, (error, response, body) => {
-  //console.log('error:', error); // Print the error if one occurred
-  //console.log('statuscode:', response.statusCode); // Print the response status code if a response was received
-  // console.log('body:',typeof body); // Print the HTML for the Google homepage
-  if (response.statusCode === 404) {
-    console.log("The page you request was not found (error 404)");
-    return;
-  }
-  const data = JSON.parse(body);
-  if (!data.length) {
-    console.log("msh");
-    return;
-  }
-  if (!data[0]["description"]) {
-    console.log("breed does not exist");
-    return;
-  }
-  const description = data[0].description;
-  console.log(description);
-});
+const fetchBreedDescription = function(breedName, callback) {
+
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
+    if (response.statusCode === 404) {
+      return callback("The page you request was not found (error 404)");
+    }
+    const data = JSON.parse(body);
+    if (!data.length) {
+      return callback("Breed does not exist (breed name was not found in API to be fetched)");
+    }
+    const description = data[0].description;
+    return callback(null, description);
+  });
+};
+
+module.exports = { fetchBreedDescription };
